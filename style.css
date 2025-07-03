@@ -1,0 +1,208 @@
+/* advansells-style.css */
+
+/* General Body Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5; /* A subtle, modern light background */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure it takes full viewport height */
+    margin: 0;
+    padding: 20px; /* Add some padding around the main container */
+    box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+/* Main Container Styling */
+.w-full.max-w-4xl.bg-white.rounded-3xl.shadow-2xl {
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border for depth */
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+    background-clip: padding-box;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 15px rgba(0, 0, 0, 0.05); /* Enhanced shadow */
+    animation: fadeInScale 0.8s ease-out forwards; /* Entrance animation */
+}
+
+/* Left Section: Branding and Pitch */
+.bg-gradient-to-br.from-purple-600.to-pink-500 {
+    background-image: linear-gradient(to bottom right, #8A2BE2, #FF1493); /* Deeper, more vibrant gradient */
+    position: relative;
+    overflow: hidden;
+    border-top-left-radius: 1.5rem; /* Match parent's rounded-3xl */
+    border-bottom-left-radius: 1.5rem; /* Match parent's rounded-3xl */
+}
+
+/* Add a subtle overlay for more depth */
+.bg-gradient-to-br.from-purple-600.to-pink-500::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1); /* Light overlay */
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Ensure content is above the overlay */
+.bg-gradient-to-br.from-purple-600.to-pink-500 > * {
+    position: relative;
+    z-index: 2;
+}
+
+.bg-gradient-to-br.from-purple-600.to-pink-500 h1 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Text shadow for readability */
+}
+
+/* Logo styling */
+.rounded-full.shadow-lg {
+    border: 3px solid rgba(255, 255, 255, 0.5); /* White border for the logo */
+}
+
+/* Right Section: Interactive Funnel */
+#funnel-container {
+    background-color: #ffffff; /* Pure white background for content clarity */
+    border-top-right-radius: 1.5rem; /* Match parent's rounded-3xl */
+    border-bottom-right-radius: 1.5rem; /* Match parent's rounded-3xl */
+    position: relative; /* For potential absolute positioning of elements */
+}
+
+/* Input field styling */
+input[type="email"] {
+    border: 1px solid #e0e0e0; /* Lighter border */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle inner shadow */
+    transition: all 0.3s ease;
+}
+
+input[type="email"]:focus {
+    border-color: #9333ea; /* Purple focus ring */
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2); /* Softer, wider focus ring */
+}
+
+/* Button Styling */
+button {
+    background-image: linear-gradient(to right, #9333ea, #d946ef); /* Purple to pink gradient */
+    border: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2); /* Light overlay for hover effect */
+    transition: all 0.4s ease-in-out;
+    z-index: -1;
+}
+
+button:hover::before {
+    left: 0;
+}
+
+button:active {
+    transform: scale(0.98); /* Slight press effect */
+}
+
+/* Dynamic AI Response Area */
+#ai-response-area {
+    min-height: 100px; /* Give it some initial height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Loading Indicator */
+#loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.animate-spin {
+    border-top-color: #d946ef; /* Pinker spinner */
+    border-bottom-color: #8A2BE2; /* Purple spinner */
+}
+
+/* Message Box Styling */
+#message-box {
+    background-color: rgba(240, 242, 245, 0.95); /* Semi-transparent background matching body */
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+#message-box > div {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    background-clip: padding-box;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.3s ease-out forwards;
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .md\:flex-row {
+        flex-direction: column; /* Stack sections on small screens */
+    }
+
+    .md\:w-1\/2 {
+        width: 100%; /* Full width for each section */
+    }
+
+    .bg-gradient-to-br.from-purple-600.to-pink-500 {
+        border-radius: 1.5rem 1.5rem 0 0; /* Rounded top corners only */
+    }
+
+    #funnel-container {
+        border-radius: 0 0 1.5rem 1.5rem; /* Rounded bottom corners only */
+    }
+
+    body {
+        padding: 10px; /* Less padding on very small screens */
+    }
+}
+
+/* Smooth transition for dynamic content changes (re-defined here for clarity) */
+.fade-in-out {
+    transition: opacity 0.5s ease-in-out;
+}
