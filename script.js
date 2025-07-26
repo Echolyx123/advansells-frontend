@@ -1,4 +1,4 @@
-asnwer directly and dont code. is anythng else off about this script.js now that i changed the url, // script.js
+// script.js
 
 // --- DOM Element References ---
 const funnelTitle = document.getElementById('funnel-title');
@@ -151,7 +151,7 @@ async function sendToBackend(data) {
 
     try {
         // Use the configurable BACKEND_API_BASE_URL
-        const response = await fetch(${BACKEND_API_BASE_URL}/advansells-funnel, {
+        const response = await fetch(`${BACKEND_API_BASE_URL}/advansells-funnel`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -200,7 +200,7 @@ async function startFunnel() {
     updateContent(
         "Tell Us More About Your Needs",
         "A few quick details help us tailor your AI journey.",
-        
+        `
             <div class="w-full max-w-md text-left">
                 <div class="mb-4">
                     <label for="company-name" class="block text-gray-700 text-sm font-bold mb-2">Company Name (Optional):</label>
@@ -232,7 +232,7 @@ async function startFunnel() {
                     Continue to AI Guide
                 </button>
             </div>
-        
+        `
     );
 }
 
@@ -255,7 +255,7 @@ async function submitFormDetails() {
     currentFunnelStep = 2; // Move to the first AI interaction step
 
     // Initial prompt for the AI, now with more context
-    const initialPrompt = User email: ${userData.email}. Company: ${userData.companyName || 'N/A'}. Role: ${userData.userRole}. Primary Interest: ${userData.primaryInterest}. The user has just provided initial details. Initiate a personalized sales funnel for a cosmetics AI agency. Start by acknowledging their interest and asking a concise, engaging question related to their primary interest to dive deeper.;
+    const initialPrompt = `User email: ${userData.email}. Company: ${userData.companyName || 'N/A'}. Role: ${userData.userRole}. Primary Interest: ${userData.primaryInterest}. The user has just provided initial details. Initiate a personalized sales funnel for a cosmetics AI agency. Start by acknowledging their interest and asking a concise, engaging question related to their primary interest to dive deeper.`;
     userData.chatHistory.push({ role: "user", parts: [{ text: initialPrompt }] });
 
     try {
@@ -297,21 +297,21 @@ function processAIResponse(aiResponse) {
 
     if (aiResponse.type === 'question' && aiResponse.options && aiResponse.options.length > 0) {
         // If AI asks a multiple-choice question
-        newInteractionHtml = 
+        newInteractionHtml = `
             <div id="ai-response-content" class="w-full">
                 <p class="text-lg text-gray-700 mb-6">${aiResponse.text}</p>
                 <div class="flex flex-col space-y-4">
-                    ${aiResponse.options.map(option => 
+                    ${aiResponse.options.map(option => `
                         <button class="response-btn w-full bg-purple-100 text-purple-800 font-semibold py-3 px-6 rounded-xl transition duration-300 ease-in-out hover:bg-purple-200" data-response="${option}">
                             ${option}
                         </button>
-                    ).join('')}
+                    `).join('')}
                 </div>
             </div>
-        ;
+        `;
     } else if (aiResponse.type === 'input_required') {
         // If AI requires free-form text input for specific, complex details
-        newInteractionHtml = 
+        newInteractionHtml = `
             <div id="ai-response-content" class="w-full">
                 <p class="text-lg text-gray-700 mb-6">${aiResponse.text}</p>
                 <textarea id="user-free-input" placeholder="Type your specific details here (e.g., 'Our main challenge is integrating old CRM data')." class="w-full p-4 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800 h-32"></textarea>
@@ -319,17 +319,17 @@ function processAIResponse(aiResponse) {
                     Submit Details
                 </button>
             </div>
-        ;
+        `;
     } else if (aiResponse.type === 'offer' || aiResponse.type === 'closing') {
         // If AI is making an offer or closing the sale
-        newInteractionHtml = 
+        newInteractionHtml = `
             <div id="ai-response-content" class="w-full">
                 <p class="text-lg text-gray-700 mb-6">${aiResponse.text}</p>
                 <button id="call-to-action-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-cta-type="${aiResponse.cta}">
                     ${aiResponse.cta || 'Learn More'}
                 </button>
             </div>
-        ;
+        `;
     } else {
         // Fallback for unexpected AI response types: Display an error and reset
         console.error("AI returned an unexpected response type:", aiResponse.type, aiResponse.text);
@@ -508,7 +508,7 @@ function resetFunnel() {
     updateContent(
         "Discover Your Sales Potential",
         "Ready to transform your cosmetics business? Our AI will guide you to unprecedented growth.",
-        
+        `
             <input type="email" id="user-email" placeholder="Enter your email to begin" class="w-full p-4 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800" required>
             <button id="start-funnel-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
                 Start Your AI Journey
@@ -516,7 +516,7 @@ function resetFunnel() {
             <button id="reset-session-btn" class="w-full mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out">
                 Reset Session (for testing)
             </button>
-        
+        `
     );
     // Re-get the references to the newly created elements after updateContent
     userEmailInput = document.getElementById('user-email');
@@ -540,11 +540,11 @@ async function resetUserSession() {
         return;
     }
 
-    showMessageBox('Confirm Reset', Are you sure you want to reset the session for ${emailToReset}? This will delete all chat history for this email., async () => {
+    showMessageBox('Confirm Reset', `Are you sure you want to reset the session for ${emailToReset}? This will delete all chat history for this email.`, async () => {
         showLoading(true);
         try {
             // Use the configurable BACKEND_API_BASE_URL for reset endpoint as well
-            const response = await fetch(${BACKEND_API_BASE_URL}/reset-session, {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/reset-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -564,7 +564,7 @@ async function resetUserSession() {
             });
         } catch (error) {
             console.error('Error resetting session:', error);
-            showMessageBox('Error', Failed to reset session: ${error.message}, () => {
+            showMessageBox('Error', `Failed to reset session: ${error.message}`, () => {
                 showLoading(false);
             });
         }
