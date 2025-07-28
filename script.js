@@ -86,7 +86,10 @@ function updateContent(newTitle, newDescription, newInteractionHtml) {
     setTimeout(() => {
         funnelTitle.textContent = newTitle;
         funnelDescription.textContent = newDescription;
-        funnelInteraction.innerHTML = newInteractionHtml;
+        // IMPORTANT: Sanitize newInteractionHtml to prevent XSS attacks
+        // Ensure DOMPurify library is loaded in your HTML (e.g., via CDN:
+        // <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.6/purify.min.js"></script>)
+        funnelInteraction.innerHTML = DOMPurify.sanitize(newInteractionHtml);
 
         // If aiResponseArea is being used, ensure it's visible and content is set
         if (newInteractionHtml.includes('ai-response-content')) { // Simple check if AI content is expected
@@ -161,6 +164,8 @@ async function sendToBackend(data) {
 
         if (!response.ok) {
             const errorData = await response.json();
+            // TODO: Enhance error handling: If backend provides specific error codes/messages,
+            // display them more clearly to the user instead of a generic message.
             throw new Error(errorData.message || 'Something went wrong on the server.');
         }
 
@@ -299,11 +304,11 @@ function processAIResponse(aiResponse) {
         // If AI asks a multiple-choice question
         newInteractionHtml = `
             <div id="ai-response-content" class="w-full">
-                <p class="text-lg text-gray-700 mb-6">${aiResponse.text}</p>
+                <p class="text-lg text-gray-700 mb-6">${DOMPurify.sanitize(aiResponse.text)}</p>
                 <div class="flex flex-col space-y-4">
                     ${aiResponse.options.map(option => `
-                        <button class="response-btn w-full bg-purple-100 text-purple-800 font-semibold py-3 px-6 rounded-xl transition duration-300 ease-in-out hover:bg-purple-200" data-response="${option}">
-                            ${option}
+                        <button class="response-btn w-full bg-purple-100 text-purple-800 font-semibold py-3 px-6 rounded-xl transition duration-300 ease-in-out hover:bg-purple-200" data-response="${DOMPurify.sanitize(option)}">
+                            ${DOMPurify.sanitize(option)}
                         </button>
                     `).join('')}
                 </div>
@@ -313,7 +318,7 @@ function processAIResponse(aiResponse) {
         // If AI requires free-form text input for specific, complex details
         newInteractionHtml = `
             <div id="ai-response-content" class="w-full">
-                <p class="text-lg text-gray-700 mb-6">${aiResponse.text}</p>
+                <p class="text-lg text-gray-700 mb-6">${DOMPurify.sanitize(aiResponse.text)}</p>
                 <textarea id="user-free-input" placeholder="Type your specific details here (e.g., 'Our main challenge is integrating old CRM data')." class="w-full p-4 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800 h-32"></textarea>
                 <button id="submit-response-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
                     Submit Details
@@ -324,9 +329,9 @@ function processAIResponse(aiResponse) {
         // If AI is making an offer or closing the sale
         newInteractionHtml = `
             <div id="ai-response-content" class="w-full">
-                <p class="text-lg text-gray-700 mb-6">${aiResponse.text}</p>
-                <button id="call-to-action-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-cta-type="${aiResponse.cta}">
-                    ${aiResponse.cta || 'Learn More'}
+                <p class="text-lg text-gray-700 mb-6">${DOMPurify.sanitize(aiResponse.text)}</p>
+                <button id="call-to-action-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105" data-cta-type="${DOMPurify.sanitize(aiResponse.cta)}">
+                    ${DOMPurify.sanitize(aiResponse.cta || 'Learn More')}
                 </button>
             </div>
         `;
@@ -435,6 +440,8 @@ function handleCallToAction(ctaType) {
     let message = '';
     let redirectUrl = '';
 
+    // TODO: For production, these URLs should ideally be fetched from the backend
+    // or a centralized configuration, rather than hardcoded here.
     switch (ctaType) {
         case 'Book a Free Demo':
             message = 'Great! We will now direct you to our demo booking page.';
