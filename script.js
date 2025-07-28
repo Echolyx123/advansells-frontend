@@ -152,6 +152,11 @@ function attachDynamicEventListeners() {
 async function sendToBackend(data) {
     showLoading(true); // Show loading indicator
 
+    // --- Logging added for debugging ---
+    console.log(`[Frontend] Sending POST request to: ${BACKEND_API_BASE_URL}/advansells-funnel`);
+    console.log("[Frontend] Request Payload:", JSON.stringify(data, null, 2));
+    // --- End Logging ---
+
     try {
         // Use the configurable BACKEND_API_BASE_URL
         const response = await fetch(`${BACKEND_API_BASE_URL}/advansells-funnel`, {
@@ -162,18 +167,25 @@ async function sendToBackend(data) {
             body: JSON.stringify(data),
         });
 
+        // --- Logging added for debugging ---
+        console.log("[Frontend] Received response status:", response.status);
+        console.log("[Frontend] Received response headers:", response.headers);
+        // --- End Logging ---
+
         if (!response.ok) {
             const errorData = await response.json();
+            console.error("[Frontend] Backend Error Response:", errorData); // Log the full error response
             // TODO: Enhance error handling: If backend provides specific error codes/messages,
             // display them more clearly to the user instead of a generic message.
             throw new Error(errorData.message || 'Something went wrong on the server.');
         }
 
         const result = await response.json();
+        console.log("[Frontend] Backend Success Response:", result); // Log the full success response
         return result;
 
     } catch (error) {
-        console.error('Error communicating with backend:', error);
+        console.error('[Frontend] Error communicating with backend:', error); // Log the full error object
         showMessageBox('Error', 'Could not connect to the AI. Please ensure the backend server is running and accessible.', () => {
             showLoading(false);
             resetFunnel();
@@ -549,6 +561,10 @@ async function resetUserSession() {
 
     showMessageBox('Confirm Reset', `Are you sure you want to reset the session for ${emailToReset}? This will delete all chat history for this email.`, async () => {
         showLoading(true);
+        // --- Logging added for debugging ---
+        console.log(`[Frontend] Sending POST request to: ${BACKEND_API_BASE_URL}/reset-session`);
+        console.log("[Frontend] Reset Session Payload:", JSON.stringify({ email: emailToReset }, null, 2));
+        // --- End Logging ---
         try {
             // Use the configurable BACKEND_API_BASE_URL for reset endpoint as well
             const response = await fetch(`${BACKEND_API_BASE_URL}/reset-session`, {
@@ -559,18 +575,25 @@ async function resetUserSession() {
                 body: JSON.stringify({ email: emailToReset }),
             });
 
+            // --- Logging added for debugging ---
+            console.log("[Frontend] Received reset session response status:", response.status);
+            console.log("[Frontend] Received reset session response headers:", response.headers);
+            // --- End Logging ---
+
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error("[Frontend] Backend Reset Error Response:", errorData); // Log the full error response
                 throw new Error(errorData.message || 'Failed to reset session.');
             }
 
             const result = await response.json();
+            console.log("[Frontend] Backend Reset Success Response:", result); // Log the full success response
             showMessageBox('Session Reset', result.message, () => {
                 showLoading(false);
                 resetFunnel(); // Fully reset frontend state after backend reset
             });
         } catch (error) {
-            console.error('Error resetting session:', error);
+            console.error('[Frontend] Error resetting session:', error); // Log the full error object
             showMessageBox('Error', `Failed to reset session: ${error.message}`, () => {
                 showLoading(false);
             });
