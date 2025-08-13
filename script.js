@@ -28,7 +28,7 @@ let userData = {
 // --- Configuration ---
 // IMPORTANT: This URL is for local development when running Flask on port 5000.
 // When deploying, you will replace this with your deployed backend API URL.
-const BACKEND_API_BASE_URL = 'https://advansells.com/api';
+const BACKEND_API_BASE_URL = 'https://nemecekmilan9.pythonanywhere.com/api';
 
 
 // --- Utility Functions ---
@@ -562,3 +562,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
