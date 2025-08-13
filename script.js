@@ -117,50 +117,69 @@ function attachDynamicEventListeners() {
 }
 
 /**
- * Sends data to the backend.
+ * Sends data to the backend, now with robust JSON handling.
  * @param {object} data - The data payload to send.
  * @returns {Promise<object>} - A promise that resolves with the AI's response.
  */
 async function sendToBackend(data) {
-    if (requestInFlight) {
-        if (DEBUG) console.log("Request blocked: A request is already in flight.");
-        return Promise.reject(new Error('Request already in flight'));
+  if (requestInFlight) {
+    if (DEBUG) console.log("Request blocked: A request is already in flight.");
+    return Promise.reject(new Error('Request already in flight'));
+  }
+  requestInFlight = true;
+  showLoading(true);
+
+  if (DEBUG) {
+    console.log(`[Frontend] Sending POST to: ${BACKEND_API_BASE_URL}/advansells-funnel`);
+    console.log("[Frontend] Payload:", JSON.stringify(data, null, 2));
+  }
+
+  try {
+    const response = await fetch(`${BACKEND_API_BASE_URL}/advansells-funnel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const ct = response.headers.get('content-type') || '';
+    const isJSON = ct.includes('application/json');
+
+    // Handle non-OK responses safely
+    if (!response.ok) {
+      const raw = await response.text().catch(() => '');
+      let msg = 'Server error';
+      try {
+        if (raw && isJSON) msg = (JSON.parse(raw).message || msg);
+      } catch {}
+      console.error("[Frontend] Backend Error:", raw || `(status ${response.status})`);
+      throw new Error(msg);
     }
-    requestInFlight = true;
-    showLoading(true);
 
-    if (DEBUG) {
-        console.log(`[Frontend] Sending POST to: ${BACKEND_API_BASE_URL}/advansells-funnel`);
-        console.log("[Frontend] Payload:", JSON.stringify(data, null, 2));
+    // OK response — parse only if JSON & not empty
+    if (isJSON) {
+      // Some hosts send empty body on success; guard it
+      const text = await response.text();
+      if (!text) throw new Error('Empty response from server');
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new Error('Invalid JSON from server');
+      }
+    } else {
+      // Not JSON—treat as an error so UI doesn’t silently fail
+      const raw = await response.text().catch(() => '');
+      console.error("[Frontend] Non-JSON success response:", raw);
+      throw new Error('Unexpected non-JSON response from server');
     }
 
-    try {
-        const response = await fetch(`${BACKEND_API_BASE_URL}/advansells-funnel`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-
-        if (DEBUG) console.log("[Frontend] Response status:", response.status);
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("[Frontend] Backend Error:", errorData);
-            throw new Error(errorData.message || 'Server error');
-        }
-
-        const result = await response.json();
-        if (DEBUG) console.log("[Frontend] Backend Success:", result);
-        return result;
-
-    } catch (error) {
-        console.error('[Frontend] Communication error:', error);
-        showMessageBox('Error', 'Could not connect to the AI. Please try again later.', resetFunnel);
-        throw error;
-    } finally {
-        showLoading(false);
-        requestInFlight = false;
-    }
+  } catch (error) {
+    console.error('[Frontend] Communication error:', error);
+    showMessageBox('Error', 'Could not connect to the AI. Please try again later.', resetFunnel);
+    throw error;
+  } finally {
+    showLoading(false);
+    requestInFlight = false;
+  }
 }
 
 /**
