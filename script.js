@@ -28,7 +28,7 @@ let userData = {
 // --- Configuration ---
 // IMPORTANT: This URL is for local development when running Flask on port 5000.
 // When deploying, you will replace this with your deployed backend API URL.
-const BACKEND_API_BASE_URL = 'https://nemecekmilan9.pythonanywhere.com/api';
+const BACKEND_API_BASE_URL = 'https://advansells.com/api';
 
 
 // --- Utility Functions ---
@@ -130,12 +130,6 @@ function attachDynamicEventListeners() {
     responseButtons.forEach(button => {
         button.onclick = (event) => handleUserResponse(event.target.dataset.response);
     });
-
-    // Attach listener for the new reset session button
-    const resetSessionBtn = document.getElementById('reset-session-btn');
-    if (resetSessionBtn) {
-        resetSessionBtn.onclick = resetUserSession;
-    }
 
     // Attach listener for submit-response-btn (for input_required type)
     const submitResponseBtn = document.getElementById('submit-response-btn');
@@ -532,9 +526,6 @@ function resetFunnel() {
             <button id="start-funnel-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
                 Start Your AI Journey
             </button>
-            <button id="reset-session-btn" class="w-full mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out">
-                Reset Session (for testing)
-            </button>
         `
     );
     // Re-get the references to the newly created elements after updateContent
@@ -548,59 +539,6 @@ function resetFunnel() {
         startFunnelBtn.onclick = startFunnel; // Re-attach the event listener for the start button
     }
 }
-
-/**
- * Resets the user's session data on the backend.
- */
-async function resetUserSession() {
-    const emailToReset = userEmailInput.value.trim();
-    if (!emailToReset) {
-        showMessageBox('Input Required', 'Please enter the email address you wish to reset.');
-        return;
-    }
-
-    showMessageBox('Confirm Reset', `Are you sure you want to reset the session for ${emailToReset}? This will delete all chat history for this email.`, async () => {
-        showLoading(true);
-        // --- Logging added for debugging ---
-        console.log(`[Frontend] Sending POST request to: ${BACKEND_API_BASE_URL}/reset-session`);
-        console.log("[Frontend] Reset Session Payload:", JSON.stringify({ email: emailToReset }, null, 2));
-        // --- End Logging ---
-        try {
-            // Use the configurable BACKEND_API_BASE_URL for reset endpoint as well
-            const response = await fetch(`${BACKEND_API_BASE_URL}/reset-session`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email: emailToReset }),
-            });
-
-            // --- Logging added for debugging ---
-            console.log("[Frontend] Received reset session response status:", response.status);
-            console.log("[Frontend] Received reset session response headers:", response.headers);
-            // --- End Logging ---
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("[Frontend] Backend Reset Error Response:", errorData); // Log the full error response
-                throw new Error(errorData.message || 'Failed to reset session.');
-            }
-
-            const result = await response.json();
-            console.log("[Frontend] Backend Reset Success Response:", result); // Log the full success response
-            showMessageBox('Session Reset', result.message, () => {
-                showLoading(false);
-                resetFunnel(); // Fully reset frontend state after backend reset
-            });
-        } catch (error) {
-            console.error('[Frontend] Error resetting session:', error); // Log the full error object
-            showMessageBox('Error', `Failed to reset session: ${error.message}`, () => {
-                showLoading(false);
-            });
-        }
-    });
-}
-
 
 // --- Event Listeners Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -621,9 +559,6 @@ document.addEventListener('DOMContentLoaded', () => {
             handleCallToAction(event.target.dataset.ctaType);
         } else if (event.target.classList.contains('response-btn')) {
             handleUserResponse(event.target.dataset.response);
-        } else if (event.target.id === 'reset-session-btn') { // New listener for reset button
-            resetUserSession();
         }
     });
 });
-
