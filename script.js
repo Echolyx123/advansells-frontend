@@ -126,16 +126,6 @@ function attachDynamicEventListeners() {
     // if (nextStepBtn) {
     //     nextStepBtn.onclick = handleNextStep;
     // }
-    const responseButtons = document.querySelectorAll('.response-btn');
-    responseButtons.forEach(button => {
-        button.onclick = (event) => handleUserResponse(event.target.dataset.response);
-    });
-
-    // Attach listener for submit-response-btn (for input_required type)
-    const submitResponseBtn = document.getElementById('submit-response-btn');
-    if (submitResponseBtn) {
-        submitResponseBtn.onclick = handleSubmitFreeInput;
-    }
 }
 
 /**
@@ -562,4 +552,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
